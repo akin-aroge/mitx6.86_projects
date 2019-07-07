@@ -10,6 +10,7 @@ __pycache__/
 *.csv
 *.tsv
 *.txt
+*.gz
 
 # Distribution / packaging
 .Python
