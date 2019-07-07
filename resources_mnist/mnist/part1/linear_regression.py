@@ -17,7 +17,15 @@ def closed_form(X, Y, lambda_factor):
         represents the y-axis intercept of the model and therefore X[0] = 1
     """
     # YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
+    
+    n_rows = X.shape[1]
+
+    theta = np.matmul(np.linalg.linalg.inv(np.matmul(X.T, X) + lambda_factor * np.diag(np.ones(n_rows))), \
+        np.matmul(X.T, Y))
+
+    return theta
+
 #pragma: coderesponse end
 
 ### Functions which are already complete, for you to use ###
