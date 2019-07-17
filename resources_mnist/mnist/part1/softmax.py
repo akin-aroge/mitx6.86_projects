@@ -34,7 +34,7 @@ def compute_probabilities(X, theta, temp_parameter):
     """
     #YOUR CODE HERE
     # raise NotImplementedError
-
+    print('Prob')
     n_rows = X.shape[0]
     n_labels = theta.shape[0]
 
@@ -52,9 +52,10 @@ def compute_probabilities(X, theta, temp_parameter):
     # np.exp(theta_x - Cs.reshape(1,-1), out=exp_theta_x)
     exp_theta_x = np.exp(theta_x - Cs)
 
-    H = exp_theta_x / np.sum(exp_theta_x, axis=0)
-
-    return H
+    # H = exp_theta_x / np.sum(exp_theta_x, axis=0)
+    # H = 
+    # print('done with prob')
+    return exp_theta_x / np.sum(exp_theta_x, axis=0)
 
 #pragma: coderesponse end
 
@@ -75,20 +76,23 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     Returns
         c - the cost value (scalar)
     """
+    print('in cost')
     #YOUR CODE HERE
     # raise NotImplementedError
     n_rows = X.shape[0]
-    n_labels = theta.shape[0]
+    # n_labels = theta.shape[0]
  
     log_H = np.log(np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15))
     # M = sparse.coo_matrix(([1]*n_rows, (Y, range(n_rows))), shape=(n_labels, n_rows)).toarray()
-    M = (np.arange(n_labels).reshape(-1, 1) == Y)
-    cost = -(1.0/n_rows) * np.sum((M * log_H)) +\
-         (lambda_factor/2)*np.sum(theta**2)
+    # M = (np.arange(n_labels).reshape(-1, 1) == Y)
+    # cost = np.sum((M * log_H))/-n_rows +\
+    #      (lambda_factor/2)*np.sum(theta**2)
     
+    # faster
+    # cost = 
     # cost = miss_class_err + reg_err
-    # print('done with')
-    return cost
+    print('done with cost')
+    return - np.mean(log_H[Y, np.arange(n_rows)]) + (lambda_factor/2)*np.sum(theta**2)
 
 #pragma: coderesponse end
 
@@ -111,26 +115,28 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
     #YOUR CODE HERE
+    print('in grad')
     #raise NotImplementedError
-    n_labels = theta.shape[0]
+    # n_labels = theta.shape[0]
     n_rows = X.shape[0]
     # n_cols = X.shape[1]
 
     # sparse matrix of ones and zeros
     # each column has a one in a position corresponding to the label
     # M = sparse.coo_matrix(([1]*n_rows, (Y, range(n_rows))), shape=(n_labels, n_rows)).toarray()
-    H = compute_probabilities(X, theta, temp_parameter)
+    H = - compute_probabilities(X, theta, temp_parameter)
 
     # great?
-    theta_ = np.matmul((np.arange(n_labels).reshape(-1, 1) == Y) - H, X)
-    
+    #theta_ = np.matmul((np.arange(n_labels).reshape(-1, 1) == Y) - H, X)
+    H[Y, np.arange(n_rows)] = 1.0 + H[Y, np.arange(n_rows)]
+    # theta_ = 
     # here is a very dense computation :)
     # theta = theta - alpha*((-1.0/(temp_parameter*n_rows))* \
     #     np.sum(X * (M - H).reshape(n_labels, n_rows, 1), axis=1) + \
     #         lambda_factor * theta)
     
-    theta = theta - alpha*(theta_ / (-temp_parameter*n_rows) + lambda_factor * theta)
-
+    theta = theta - alpha*(np.matmul(H,X) / (-temp_parameter*n_rows) + lambda_factor * theta)
+    print('done with grad')
     return theta
 
 #pragma: coderesponse end
@@ -154,7 +160,11 @@ def update_y(train_y, test_y):
                     for each datapoint in the test set
     """
     #YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
+    train_y_mod3 = train_y % 3
+    test_y_mod3 = test_y % 3
+
+    return train_y_mod3, test_y_mod3
 #pragma: coderesponse end
 
 #pragma: coderesponse template
@@ -174,7 +184,14 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
         test_error - the error rate of the classifier (scalar)
     """
     #YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
+    # X = augment_feature_vector(X)
+    Y_hat = get_classification(X, theta, temp_parameter)
+    Y_hat_mod3 = Y_hat % 3
+    error = 1 - np.mean(Y_hat_mod3 == Y)
+
+    return error
+
 #pragma: coderesponse end
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):

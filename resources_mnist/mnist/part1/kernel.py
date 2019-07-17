@@ -21,7 +21,10 @@ def polynomial_kernel(X, Y, c, p):
             kernel_matrix - (n, m) Numpy array containing the kernel matrix
     """
     # YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
+    kernel_matrix = (np.matmul(X, Y.T) + c) ** p
+
+    return kernel_matrix
 # pragma: coderesponse end
 
 # pragma: coderesponse template
@@ -41,6 +44,11 @@ def rbf_kernel(X, Y, gamma):
         Returns:
             kernel_matrix - (n, m) Numpy array containing the kernel matrix
     """
+    
     # YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
+    n_rows_Y, n_cols_Y = Y.shape
+    Y_ = Y.reshape(n_rows_Y, 1, n_cols_Y)
+    k = np.exp(-gamma * np.sum((X - Y_)**2, axis=2))
+    return k.T
 # pragma: coderesponse end
