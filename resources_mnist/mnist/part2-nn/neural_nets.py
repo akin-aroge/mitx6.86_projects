@@ -17,12 +17,14 @@ import math
 def rectified_linear_unit(x):
     """ Returns the ReLU of x, or the maximum between 0 and x."""
     # TODO
+    return max([0, x])
 #pragma: coderesponse end
 
 #pragma: coderesponse template
 def rectified_linear_unit_derivative(x):
     """ Returns the derivative of ReLU."""
     # TODO
+    return int(x > 0)
 #pragma: coderesponse end
 
 def output_layer_activation(x):
@@ -46,8 +48,11 @@ class NeuralNetwork():
 
         # DO NOT CHANGE PARAMETERS
         self.input_to_hidden_weights = np.matrix('1 1; 1 1; 1 1')
+        #self.input_to_hidden_weights = np.array([[1,1], [1,1], [1,1]])
         self.hidden_to_output_weights = np.matrix('1 1 1')
+        #self.hidden_to_output_weights = np.array([1,1,1])
         self.biases = np.matrix('0; 0; 0')
+        #self.biases = np.array([0,0,0])
         self.learning_rate = .001
         self.epochs_to_train = 10
         self.training_points = [((2,1), 10), ((3,3), 21), ((4,5), 32), ((6, 6), 42)]
@@ -60,26 +65,36 @@ class NeuralNetwork():
         input_values = np.matrix([[x1],[x2]]) # 2 by 1
 
         # Calculate the input and activation of the hidden layer
-        hidden_layer_weighted_input = # TODO (3 by 1 matrix)
-        hidden_layer_activation = # TODO (3 by 1 matrix)
+        v_rectified_linear_unit = np.vectorize(rectified_linear_unit)
 
-        output =  # TODO
-        activated_output = # TODO
+        hidden_layer_weighted_input = np.matmul(self.input_to_hidden_weights, input_values) + self.biases # TODO (3 by 1 matrix)
+        hidden_layer_activation = v_rectified_linear_unit(hidden_layer_weighted_input) # TODO (3 by 1 matrix)
+
+        output = np.matmul(self.hidden_to_output_weights, hidden_layer_activation)  # TODO
+        activated_output = output_layer_activation(output).item() # TODO
 
         ### Backpropagation ###
 
         # Compute gradients
-        output_layer_error = # TODO
-        hidden_layer_error = # TODO (3 by 1 matrix)
+        v_output_layer_activation_derivative = np.vectorize(output_layer_activation_derivative)
+        v_rectified_linear_unit_derivative = np.vectorize(rectified_linear_unit_derivative)
 
-        bias_gradients = # TODO
-        hidden_to_output_weight_gradients = # TODO
-        input_to_hidden_weight_gradients = # TODO
+        # Errors
+        output_layer_error = (activated_output - y) * v_output_layer_activation_derivative(activated_output) # TODO
+        hidden_layer_error = np.multiply(v_rectified_linear_unit_derivative(hidden_layer_activation), 
+                                self.hidden_to_output_weights.T * output_layer_error) # TODO (3 by 1 matrix)
+
+        # gradients
+        bias_gradients = hidden_layer_error
+        hidden_to_output_weight_gradients = hidden_layer_activation * output_layer_error # TODO
+        input_to_hidden_weight_gradients = np.matmul(hidden_layer_error, input_values.T)
+        #print(hidden_to_output_weight_gradients)
 
         # Use gradients to adjust weights and biases using gradient descent
-        self.biases = # TODO
-        self.input_to_hidden_weights = # TODO
-        self.hidden_to_output_weights = # TODO
+        self.biases = self.biases - self.learning_rate * bias_gradients # TODO
+        self.input_to_hidden_weights = self.input_to_hidden_weights - self.learning_rate * input_to_hidden_weight_gradients # TODO
+        self.hidden_to_output_weights = self.hidden_to_output_weights -\
+             self.learning_rate * hidden_to_output_weight_gradients.T # TODO
 #pragma: coderesponse end
 
 #pragma: coderesponse template prefix="class NeuralNetwork(NeuralNetworkBase):\n\n"
@@ -88,11 +103,14 @@ class NeuralNetwork():
         input_values = np.matrix([[x1],[x2]])
 
         # Compute output for a single input(should be same as the forward propagation in training)
-        hidden_layer_weighted_input = # TODO
-        hidden_layer_activation = # TODO
-        output = # TODO
-        activated_output = # TODO
-
+        #input_values = np.array([x1, x2])
+        hidden_layer_weighted_input = np.matmul(self.input_to_hidden_weights, input_values) + self.biases # TODO
+        v_rectified_linear_unit = np.vectorize(rectified_linear_unit)
+        hidden_layer_activation = v_rectified_linear_unit(hidden_layer_weighted_input)# TODO
+        
+        output = np.matmul(self.hidden_to_output_weights, hidden_layer_activation) # TODO
+        activated_output = output_layer_activation(output)# TODO
+        #print(activated_output)
         return activated_output.item()
 #pragma: coderesponse end
 
@@ -119,4 +137,4 @@ x = NeuralNetwork()
 x.train_neural_network()
 
 # UNCOMMENT THE LINE BELOW TO TEST YOUR NEURAL NETWORK
-# x.test_neural_network()
+x.test_neural_network()

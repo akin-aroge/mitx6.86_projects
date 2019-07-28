@@ -41,6 +41,7 @@ def main():
     model = nn.Sequential(
               nn.Linear(784, 10),
               nn.ReLU(),
+              #nn.LeakyReLU(),
               nn.Linear(10, 10),
             )
     lr=0.1
