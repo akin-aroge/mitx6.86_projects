@@ -50,6 +50,7 @@ class CNN(nn.Module):
 
         x = self.drop(x)
 
+        # parallel layers for the two different predictions
         x_1 = F.relu(self.fc2_1(x))
         x_2 = F.relu(self.fc2_2(x))
 
